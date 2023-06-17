@@ -1,8 +1,8 @@
-"""migrate
+"""empty message
 
-Revision ID: db3784e8840a
+Revision ID: 909d2894265f
 Revises: 
-Create Date: 2023-06-16 12:24:28.830906
+Create Date: 2023-06-17 14:25:37.426234
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'db3784e8840a'
+revision = '909d2894265f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,10 +34,10 @@ def upgrade():
     op.create_table('reservations',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('party_name', sa.String(), nullable=False),
+    sa.Column('party_size', sa.Integer(), nullable=False),
+    sa.Column('date', sa.Date(), nullable=False),
     sa.Column('location_id', sa.Integer(), nullable=False),
     sa.Column('customer_id', sa.Integer(), nullable=False),
-    sa.Column('party_size', sa.Integer(), nullable=False),
-    sa.Column('date', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['customer_id'], ['customers.id'], name=op.f('fk_reservations_customer_id_customers')),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], name=op.f('fk_reservations_location_id_locations')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_reservations')),

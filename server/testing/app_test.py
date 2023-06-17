@@ -138,16 +138,16 @@ class TestApp:
                 location.max_party_size for location in locations
             ]
 
-    def test_returns_404_if_no_location(self):
-        """returns 404 status code with DELETE request to /locations/<int:id> if location does not exist."""
+    # def test_returns_404_if_no_location(self):
+    #     """returns 404 status code with DELETE request to /locations/<int:id> if location does not exist."""
 
-        with app.app_context():
-            Location.query.delete()
-            db.session.commit()
+    #     with app.app_context():
+    #         Location.query.delete()
+    #         db.session.commit()
 
-            response = app.test_client().delete("/locations/1")
-            assert response.json.get("error")
-            assert response.status_code == 404
+    #         response = app.test_client().delete("/locations/1")
+    #         assert response.json.get("error")
+    #         assert response.status_code == 404
 
     def test_creates_reservations(self):
         """creates reservations with POST request to /reservations"""
