@@ -33,6 +33,110 @@ api = Api(app)
 def home():
     return ""
 
+class Customers(Resource):
+
+    def get(self):
+        customers = [customer.to_dict(only=('id', 'name', 'email')) for customer in Customer.query.all()]
+        return customers, 200
+    
+    def post(self):
+        data = request.get_json()
+        try:
+            new_customer = Customer(
+                name= data.get('name'),
+                email= data.get('email')
+            )
+            db.session.add(new_customer)
+            db.session.commit()
+            return new_customer.to_dict(), 201
+
+        except:
+            return {"error": "400: Validation error"}, 400
+
+api.add_resource(Customers, '/customers')
+
+class CustomerById(Resource):
+
+    def get(self, id):
+        try:
+            customer = Customer.query.filter_by(id=id).first().to_dict()
+            return customer, 200
+        except:
+            return {"error": "404: Customer not found"}, 404
+
+api.add_resource(CustomerById, '/customers/<int:id>')
+
+class Locations(Resource):
+    def get(self):
+        locations = [location.to_dict() for location in Location.query.all()]
+        return locations, 200
+
+api.add_resource(Locations, '/locations')
+
+class Reservations(Resource):
+
+    def get(self):
+        reservations = [reservation.to_dict() for reservation in Reservation.query.all()]
+        return reservations, 200
+    
+    def post(self):
+        try:
+            data = request.get_json()
+            new_reservation = Reservation(
+                reservation_date = datetime.datetime.strptime(data.get('reservation_date'),"%Y-%m-%d").date(),
+                customer_id = data.get('customer_id'),
+                location_id = data.get('location_id'),
+                party_size = data.get('party_size'),
+                party_name = data.get('party_name')
+            )
+            db.session.add(new_reservation)
+            db.session.commit()
+            return new_reservation.to_dict(), 201
+        except:
+            return {"error": "400: Validation error"}, 400
+
+api.add_resource(Reservations, '/reservations')    
+
+class ReservationById(Resource):
+    def get(self):
+        reservation = Reservation.query.filter(Reservation.id == id).first().to_dict()
+        return reservation, 200
+
+    def patch(self, id):
+        print("in the patch route")
+        data = request.get_json()
+        reservation = Reservation.query.filter(Reservation.id == id).first()
+        if not reservation:
+            return ({"error": "404 not found"}, 404)
+        for attr in data:
+            print(attr, data)
+            if attr == "reservation_date":
+                setattr(
+                    reservation,
+                    attr,
+                    datetime.datetime.strptime(
+                        data.get("reservation_date"), "%Y-%m-%d"
+                    ).date(),
+                )
+            else:
+                setattr(reservation, attr, data.get(attr))
+        try:
+            db.session.add(reservation)
+            db.session.commit()
+            return reservation.to_dict(), 200
+        except Exception:
+            return ({"error": "error"}, 400)
+        
+    def delete(self, id):
+        try:
+            reservation = Reservation.query.filter(Reservation.id == id).first()
+            db.session.delete(reservation)
+            db.session.commit()
+            return ({}, 204)
+        except:
+            return ({"error": "404 not found"}, 404)
+
+api.add_resource(ReservationById, '/reservations/<int:id>')
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
